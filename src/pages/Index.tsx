@@ -48,6 +48,8 @@ const Index = () => {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<WheelItem | null>(null);
   const [resultPrize, setResultPrize] = useState<string | null>(null);
+  const [queuedResult, setQueuedResult] = useState<WheelItem | null>(null);
+  const [queuedResultPrize, setQueuedResultPrize] = useState<string | null>(null);
   const [autoRemoved, setAutoRemoved] = useState(false);
 
   // Apply background — wallpaper image takes precedence over gradient
@@ -91,8 +93,40 @@ const Index = () => {
 
     if (drawMode === "groups") {
       if (prizes.length > 0) {
-        const idx = groupCursor % prizes.length;
+        const currentCursor = groupCursor;
+        const idx = currentCursor % prizes.length;
         assignment = prizes[idx]?.label ?? null;
+
+        // In groups mode with auto-remove enabled, if this is the penultimate draw
+        // we auto-assign the remaining person to the next group immediately.
+        if (settings.removeOnPick && items.length === 2) {
+          const lastItem = items.find((i) => i.id !== item.id) ?? null;
+          if (lastItem) {
+            const nextIdx = (currentCursor + 1) % prizes.length;
+            const nextAssignment = prizes[nextIdx]?.label ?? null;
+            const now = Date.now();
+
+            setResult(item);
+            setResultPrize(assignment);
+            setQueuedResult(lastItem);
+            setQueuedResultPrize(nextAssignment);
+            setHistory((prev) => [
+              ...prev,
+              { id: crypto.randomUUID(), label: item.label, timestamp: now, prize: assignment },
+              {
+                id: crypto.randomUUID(),
+                label: lastItem.label,
+                timestamp: now + 1,
+                prize: nextAssignment,
+              },
+            ]);
+            setGroupCursor((prev) => prev + 2);
+            setItems((prev) => prev.filter((i) => i.id !== item.id && i.id !== lastItem.id));
+            setAutoRemoved(true);
+            return;
+          }
+        }
+
         setGroupCursor((prev) => prev + 1);
       }
     } else {
@@ -119,6 +153,18 @@ const Index = () => {
     if (!result) return;
     setItems((prev) => prev.filter((i) => i.id !== result.id));
     setAutoRemoved(true);
+  };
+
+  const handleResultDialogClose = () => {
+    if (queuedResult) {
+      setResult(queuedResult);
+      setResultPrize(queuedResultPrize);
+      setQueuedResult(null);
+      setQueuedResultPrize(null);
+      setAutoRemoved(true);
+      return;
+    }
+    setResult(null);
   };
 
   const brandName = settings.brandName?.trim() || "InitSpin";
@@ -211,9 +257,10 @@ const Index = () => {
         result={result}
         prizeLabel={resultPrize}
         assignmentTitle={drawMode === "groups" ? t("result.group") : t("result.prize")}
+        isGroupMode={drawMode === "groups"}
         removed={autoRemoved}
         confettiEnabled={settings.confettiEnabled}
-        onClose={() => setResult(null)}
+        onClose={handleResultDialogClose}
         onRemove={handleManualRemove}
       />
 

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Gift, Trash2, X } from "lucide-react";
+import { Sparkles, Gift, Trash2, X, Users } from "lucide-react";
 import type { WheelItem } from "@/lib/wheel-types";
 import { useI18n } from "@/lib/i18n";
 import { fireConfetti } from "@/lib/confetti";
@@ -10,6 +10,7 @@ interface ResultDialogProps {
   result: WheelItem | null;
   prizeLabel: string | null;
   assignmentTitle: string;
+  isGroupMode: boolean;
   onClose: () => void;
   onRemove: () => void;
   removed: boolean;
@@ -20,6 +21,7 @@ export const ResultDialog = ({
   result,
   prizeLabel,
   assignmentTitle,
+  isGroupMode,
   onClose,
   onRemove,
   removed,
@@ -47,7 +49,11 @@ export const ResultDialog = ({
 
           {prizeLabel && (
             <div className="mt-5 w-full px-4 py-3 rounded-xl bg-secondary/15 border border-secondary/40 flex items-center gap-3 animate-fade-in">
-              <Gift className="w-5 h-5 text-secondary shrink-0" />
+              {isGroupMode ? (
+                <Users className="w-5 h-5 text-secondary shrink-0" />
+              ) : (
+                <Gift className="w-5 h-5 text-secondary shrink-0" />
+              )}
               <div className="text-left min-w-0 flex-1">
                 <p className="text-[10px] uppercase tracking-widest text-secondary/90">
                   {assignmentTitle}

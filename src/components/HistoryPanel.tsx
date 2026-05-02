@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Gift } from "lucide-react";
+import { Download, Trash2, Gift, Users } from "lucide-react";
 import type { DrawMode, HistoryEntry } from "@/lib/wheel-types";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -242,7 +242,7 @@ export const HistoryPanel = ({ history, mode, groups, onClear }: HistoryPanelPro
                   </div>
                   {h.prize && (
                     <div className="flex items-center gap-1.5 text-xs text-secondary/90 ml-6">
-                      <Gift className="w-3 h-3" />
+                      {mode === "groups" ? <Users className="w-3 h-3" /> : <Gift className="w-3 h-3" />}
                       <span className="truncate">{h.prize}</span>
                     </div>
                   )}
