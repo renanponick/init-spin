@@ -2,6 +2,8 @@
 
 Roleta de gratuita
 
+Acesse: https://roleta.initcode.com.br/
+
 ![alt text](docs/image.png)
 
 Várias possibilidades para customizar a roleta:
