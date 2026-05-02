@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gift, Plus, Trash2, Upload, X, Shuffle } from "lucide-react";
+import { Gift, Plus, Trash2, Upload, X, Shuffle, Users } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import type { DrawMode } from "@/lib/wheel-types";
 
@@ -62,7 +62,11 @@ export const PrizeList = ({ prizes, setPrizes, mode, setMode, groupCursor }: Pri
     <div className="glass rounded-2xl p-4 sm:p-5 flex flex-col">
       <div className="flex items-center justify-between mb-3 gap-2">
         <h2 className="font-display font-semibold text-lg flex items-center gap-2">
-          <Gift className="w-4 h-4 text-secondary" />
+          {mode === "groups" ? (
+            <Users className="w-4 h-4 text-secondary" />
+          ) : (
+            <Gift className="w-4 h-4 text-secondary" />
+          )}
           {mode === "groups" ? t("prizes.titleGroups") : t("prizes.title")}{" "}
           <span className="text-muted-foreground text-sm font-sans">({prizes.length})</span>
         </h2>
@@ -128,7 +132,11 @@ export const PrizeList = ({ prizes, setPrizes, mode, setMode, groupCursor }: Pri
             </p>
             <p className="text-sm font-semibold truncate">{nextIndex >= 0 ? prizes[nextIndex].label : ""}</p>
           </div>
-          <Gift className="w-5 h-5 text-secondary shrink-0" />
+          {mode === "groups" ? (
+            <Users className="w-5 h-5 text-secondary shrink-0" />
+          ) : (
+            <Gift className="w-5 h-5 text-secondary shrink-0" />
+          )}
         </div>
       )}
 
