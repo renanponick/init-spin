@@ -11,6 +11,7 @@ interface SpinningWheelProps {
   palette: string[];
   logoDataUrl: string | null;
   soundEnabled: boolean;
+  minItemsToSpin?: number;
   onResult: (item: WheelItem) => void;
   spinning: boolean;
   setSpinning: (b: boolean) => void;
@@ -21,6 +22,7 @@ export const SpinningWheel = ({
   palette,
   logoDataUrl,
   soundEnabled,
+  minItemsToSpin = 2,
   onResult,
   spinning,
   setSpinning,
@@ -31,7 +33,7 @@ export const SpinningWheel = ({
   const lastTickIdxRef = useRef<number>(-1);
 
   const spin = useCallback(() => {
-    if (spinning || items.length < 2) return;
+    if (spinning || items.length < minItemsToSpin) return;
     setSpinning(true);
     lastTickIdxRef.current = -1;
 
@@ -84,7 +86,7 @@ export const SpinningWheel = ({
     };
 
     rafRef.current = requestAnimationFrame(step);
-  }, [items, onResult, rotation, setSpinning, soundEnabled, spinning]);
+  }, [items, minItemsToSpin, onResult, rotation, setSpinning, soundEnabled, spinning]);
 
   useEffect(() => {
     return () => {
@@ -118,7 +120,7 @@ export const SpinningWheel = ({
         {/* Center spin button */}
         <button
           onClick={spin}
-          disabled={spinning || items.length < 2}
+          disabled={spinning || items.length < minItemsToSpin}
           aria-label="Spin the wheel"
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10
                      w-[18%] h-[18%] min-w-[60px] min-h-[60px] rounded-full
@@ -139,11 +141,17 @@ export const SpinningWheel = ({
       <div className="mt-6 flex justify-center">
         <Button
           onClick={spin}
-          disabled={spinning || items.length < 2}
+          disabled={spinning || items.length < minItemsToSpin}
           size="lg"
           className="bg-gradient-primary text-primary-foreground font-display font-semibold px-10 h-12 rounded-full hover:opacity-90 hover:scale-[1.02] transition-all"
         >
-          {spinning ? t("wheel.spinning") : items.length < 2 ? t("wheel.needItems") : t("wheel.spin")}
+          {spinning
+            ? t("wheel.spinning")
+            : items.length < minItemsToSpin
+              ? minItemsToSpin === 1
+                ? t("wheel.needItemsSingle")
+                : t("wheel.needItems")
+              : t("wheel.spin")}
         </Button>
       </div>
     </div>

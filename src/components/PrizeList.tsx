@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Gift, Plus, Trash2, Upload, X, Shuffle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import type { DrawMode } from "@/lib/wheel-types";
 
 export interface Prize {
   id: string;
@@ -12,9 +13,12 @@ export interface Prize {
 interface PrizeListProps {
   prizes: Prize[];
   setPrizes: (p: Prize[]) => void;
+  mode: DrawMode;
+  setMode: (mode: DrawMode) => void;
+  groupCursor: number;
 }
 
-export const PrizeList = ({ prizes, setPrizes }: PrizeListProps) => {
+export const PrizeList = ({ prizes, setPrizes, mode, setMode, groupCursor }: PrizeListProps) => {
   const { t } = useI18n();
   const [draft, setDraft] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -52,15 +56,28 @@ export const PrizeList = ({ prizes, setPrizes }: PrizeListProps) => {
     addMany(lines);
   };
 
+  const nextIndex = prizes.length === 0 ? -1 : mode === "groups" ? groupCursor % prizes.length : 0;
+
   return (
     <div className="glass rounded-2xl p-4 sm:p-5 flex flex-col">
       <div className="flex items-center justify-between mb-3 gap-2">
         <h2 className="font-display font-semibold text-lg flex items-center gap-2">
           <Gift className="w-4 h-4 text-secondary" />
-          {t("prizes.title")}{" "}
+          {mode === "groups" ? t("prizes.titleGroups") : t("prizes.title")}{" "}
           <span className="text-muted-foreground text-sm font-sans">({prizes.length})</span>
         </h2>
         <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMode(mode === "prizes" ? "groups" : "prizes")}
+            className="gap-1.5 text-muted-foreground hover:text-foreground"
+            title={mode === "groups" ? t("prizes.modePrizes") : t("prizes.modeGroups")}
+          >
+            <span className="text-xs font-medium">
+              {mode === "groups" ? t("prizes.modeGroups") : t("prizes.modePrizes")}
+            </span>
+          </Button>
           <input
             ref={fileRef}
             type="file"
@@ -107,9 +124,9 @@ export const PrizeList = ({ prizes, setPrizes }: PrizeListProps) => {
         <div className="mb-3 px-3 py-2 rounded-lg bg-secondary/10 border border-secondary/30 flex items-center justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-wider text-secondary/80">
-              {t("prizes.next")}
+              {mode === "groups" ? t("prizes.nextGroup") : t("prizes.next")}
             </p>
-            <p className="text-sm font-semibold truncate">{prizes[0].label}</p>
+            <p className="text-sm font-semibold truncate">{nextIndex >= 0 ? prizes[nextIndex].label : ""}</p>
           </div>
           <Gift className="w-5 h-5 text-secondary shrink-0" />
         </div>
@@ -131,7 +148,7 @@ export const PrizeList = ({ prizes, setPrizes }: PrizeListProps) => {
               setDraft("");
             }
           }}
-          placeholder={t("prizes.placeholder")}
+          placeholder={mode === "groups" ? t("prizes.placeholderGroups") : t("prizes.placeholder")}
           className="bg-muted/50 border-border focus-visible:ring-secondary"
         />
         <Button
@@ -147,7 +164,7 @@ export const PrizeList = ({ prizes, setPrizes }: PrizeListProps) => {
       <div className="overflow-y-auto scrollbar-thin" style={{ maxHeight: `${6 * 44}px` }}>
         {prizes.length === 0 ? (
           <div className="text-center text-muted-foreground py-6 text-sm">
-            {t("prizes.empty")}
+            {mode === "groups" ? t("prizes.emptyGroups") : t("prizes.empty")}
           </div>
         ) : (
           <ol className="space-y-1.5">

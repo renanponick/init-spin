@@ -12,6 +12,7 @@ import { useI18n } from "@/lib/i18n";
 import {
   DEFAULT_SETTINGS,
   THEME_PRESETS,
+  type DrawMode,
   type HistoryEntry,
   type WheelItem,
   type WheelSettings,
@@ -37,6 +38,8 @@ const Index = () => {
   const [items, setItems] = useLocalStorage<WheelItem[]>("initspin.items", DEFAULT_ITEMS);
   const [prizes, setPrizes] = useLocalStorage<Prize[]>("initspin.prizes", DEFAULT_PRIZES);
   const [history, setHistory] = useLocalStorage<HistoryEntry[]>("initspin.history", []);
+  const [drawMode, setDrawMode] = useLocalStorage<DrawMode>("initspin.drawMode", "prizes");
+  const [groupCursor, setGroupCursor] = useLocalStorage<number>("initspin.groupCursor", 0);
   const [settings, setSettings] = useLocalStorage<WheelSettings>(
     "initspin.settings",
     DEFAULT_SETTINGS,
@@ -84,18 +87,28 @@ const Index = () => {
   }, [settings.brandName, t]);
 
   const handleResult = (item: WheelItem) => {
-    const prize = prizes[0]?.label ?? null;
-    if (prize) setPrizes(prizes.slice(1));
+    let assignment: string | null = null;
+
+    if (drawMode === "groups") {
+      if (prizes.length > 0) {
+        const idx = groupCursor % prizes.length;
+        assignment = prizes[idx]?.label ?? null;
+        setGroupCursor((prev) => prev + 1);
+      }
+    } else {
+      assignment = prizes[0]?.label ?? null;
+      if (assignment) setPrizes((prev) => prev.slice(1));
+    }
 
     setResult(item);
-    setResultPrize(prize);
-    setHistory([
-      ...history,
-      { id: crypto.randomUUID(), label: item.label, timestamp: Date.now(), prize },
+    setResultPrize(assignment);
+    setHistory((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), label: item.label, timestamp: Date.now(), prize: assignment },
     ]);
 
     if (settings.removeOnPick) {
-      setItems(items.filter((i) => i.id !== item.id));
+      setItems((prev) => prev.filter((i) => i.id !== item.id));
       setAutoRemoved(true);
     } else {
       setAutoRemoved(false);
@@ -104,7 +117,7 @@ const Index = () => {
 
   const handleManualRemove = () => {
     if (!result) return;
-    setItems(items.filter((i) => i.id !== result.id));
+    setItems((prev) => prev.filter((i) => i.id !== result.id));
     setAutoRemoved(true);
   };
 
@@ -159,6 +172,7 @@ const Index = () => {
               palette={settings.segmentPalette}
               logoDataUrl={settings.logoDataUrl}
               soundEnabled={settings.soundEnabled}
+              minItemsToSpin={drawMode === "groups" ? 1 : 2}
               onResult={handleResult}
               spinning={spinning}
               setSpinning={setSpinning}
@@ -173,8 +187,22 @@ const Index = () => {
           {/* Side panels */}
           <aside className="flex flex-col gap-4 animate-fade-in">
             <ItemList items={items} setItems={setItems} />
-            <PrizeList prizes={prizes} setPrizes={setPrizes} />
-            <HistoryPanel history={history} onClear={() => setHistory([])} />
+            <PrizeList
+              prizes={prizes}
+              setPrizes={setPrizes}
+              mode={drawMode}
+              setMode={setDrawMode}
+              groupCursor={groupCursor}
+            />
+            <HistoryPanel
+              history={history}
+              mode={drawMode}
+              groups={prizes.map((p) => p.label)}
+              onClear={() => {
+                setHistory([]);
+                setGroupCursor(0);
+              }}
+            />
           </aside>
         </div>
       </main>
@@ -182,6 +210,7 @@ const Index = () => {
       <ResultDialog
         result={result}
         prizeLabel={resultPrize}
+        assignmentTitle={drawMode === "groups" ? t("result.group") : t("result.prize")}
         removed={autoRemoved}
         confettiEnabled={settings.confettiEnabled}
         onClose={() => setResult(null)}

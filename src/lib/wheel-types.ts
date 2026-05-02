@@ -11,6 +11,8 @@ export interface HistoryEntry {
   prize?: string | null;
 }
 
+export type DrawMode = "prizes" | "groups";
+
 export interface ThemePreset {
   label: string;
   swatch: string; // CSS gradient for the picker swatch

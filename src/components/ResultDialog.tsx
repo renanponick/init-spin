@@ -9,6 +9,7 @@ import { fireConfetti } from "@/lib/confetti";
 interface ResultDialogProps {
   result: WheelItem | null;
   prizeLabel: string | null;
+  assignmentTitle: string;
   onClose: () => void;
   onRemove: () => void;
   removed: boolean;
@@ -18,6 +19,7 @@ interface ResultDialogProps {
 export const ResultDialog = ({
   result,
   prizeLabel,
+  assignmentTitle,
   onClose,
   onRemove,
   removed,
@@ -48,7 +50,7 @@ export const ResultDialog = ({
               <Gift className="w-5 h-5 text-secondary shrink-0" />
               <div className="text-left min-w-0 flex-1">
                 <p className="text-[10px] uppercase tracking-widest text-secondary/90">
-                  {t("result.prize")}
+                  {assignmentTitle}
                 </p>
                 <p className="font-semibold truncate">{prizeLabel}</p>
               </div>
