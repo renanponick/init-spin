@@ -61,11 +61,6 @@ export const WheelCanvas = ({ items, rotation, palette, logoDataUrl }: WheelCanv
       ctx.beginPath();
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.5)";
-      ctx.font = "600 16px Inter, sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("Add items to begin", cx, cy);
       return;
     }
 

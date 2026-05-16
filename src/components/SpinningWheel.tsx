@@ -137,23 +137,6 @@ export const SpinningWheel = ({
           )}
         </button>
       </div>
-
-      <div className="mt-6 flex justify-center">
-        <Button
-          onClick={spin}
-          disabled={spinning || items.length < minItemsToSpin}
-          size="lg"
-          className="bg-gradient-primary text-primary-foreground font-display font-semibold px-10 h-12 rounded-full hover:opacity-90 hover:scale-[1.02] transition-all"
-        >
-          {spinning
-            ? t("wheel.spinning")
-            : items.length < minItemsToSpin
-              ? minItemsToSpin === 1
-                ? t("wheel.needItemsSingle")
-                : t("wheel.needItems")
-              : t("wheel.spin")}
-        </Button>
-      </div>
     </div>
   );
 };

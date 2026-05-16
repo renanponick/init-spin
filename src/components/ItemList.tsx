@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Upload, X, Shuffle, Users } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Plus, Trash2, Upload, X, Shuffle, Users, ChevronDown, Info } from "lucide-react";
 import type { WheelItem } from "@/lib/wheel-types";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ function parseNames(raw: string): string[] {
 export const ItemList = ({ items, setItems }: ItemListProps) => {
   const { t } = useI18n();
   const [draft, setDraft] = useState("");
+  const [collapsed, setCollapsed] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const addMany = (names: string[]) => {
@@ -93,6 +95,41 @@ export const ItemList = ({ items, setItems }: ItemListProps) => {
               e.target.value = "";
             }}
           />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground px-1.5"
+                aria-label="Como adicionar participantes"
+              >
+                <Info className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent side="left" align="start" className="w-68 text-sm space-y-2">
+              <p className="font-semibold text-foreground">Como adicionar participantes</p>
+              <ul className="text-xs text-muted-foreground space-y-1.5 leading-snug">
+                <li>• <strong>Digite</strong> um nome e pressione Enter ou clique em +</li>
+                <li>• <strong>Cole vários nomes</strong> de uma vez separados por vírgula, ponto-e-vírgula ou quebra de linha</li>
+                <li>• <strong>Importe</strong> uma lista .txt, .csv ou .json pelo botão de upload</li>
+              </ul>
+            </PopoverContent>
+          </Popover>
+          {items.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCollapsed((c) => !c)}
+              className="text-muted-foreground hover:text-foreground"
+              title={collapsed ? "Expandir" : "Recolher"}
+            >
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  collapsed ? "-rotate-90" : ""
+                }`}
+              />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -117,6 +154,8 @@ export const ItemList = ({ items, setItems }: ItemListProps) => {
         </div>
       </div>
 
+      {!collapsed && (
+        <div className="flex flex-col">
       <div className="flex gap-2">
         <Input
           value={draft}
@@ -150,11 +189,6 @@ export const ItemList = ({ items, setItems }: ItemListProps) => {
         </Button>
       </div>
 
-      <p className="text-[11px] text-muted-foreground mt-2 leading-snug">
-        {t("items.pasteHint")}
-      </p>
-
-
       {items.length === 0 && (
         <button
           type="button"
@@ -173,9 +207,7 @@ export const ItemList = ({ items, setItems }: ItemListProps) => {
         </button>
       )}
       <div className="mt-3 overflow-y-auto scrollbar-thin" style={{ maxHeight: `${6 * 44}px` }}>
-        {items.length === 0 ? (
-          <div className="text-center text-muted-foreground py-8 text-sm">{t("items.empty")}</div>
-        ) : (
+        {items.length > 0 && (
           <ul className="space-y-1.5">
             {items.map((it) => (
               <li
@@ -195,6 +227,8 @@ export const ItemList = ({ items, setItems }: ItemListProps) => {
           </ul>
         )}
       </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { ResultDialog } from "@/components/ResultDialog";
 import { PromoCard } from "@/components/PromoCard";
 import { LangToggle } from "@/components/LangToggle";
+import { NavLink } from "@/components/NavLink";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -203,6 +204,12 @@ const Index = () => {
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
+          <NavLink
+            to="/sorteio"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted/50"
+          >
+            Sortear Números
+          </NavLink>
           <LangToggle />
           <SettingsPanel settings={settings} setSettings={setSettings} />
         </div>
@@ -223,9 +230,6 @@ const Index = () => {
               spinning={spinning}
               setSpinning={setSpinning}
             />
-            <p className="text-xs text-muted-foreground mt-4 text-center max-w-sm">
-              {t("wheel.tip")}
-            </p>
 
 
           </section>
